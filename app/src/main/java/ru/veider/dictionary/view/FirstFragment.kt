@@ -5,8 +5,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.fragment.findNavController
-import ru.veider.dictionary.R
+import android.widget.LinearLayout
+import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import ru.veider.dictionary.databinding.FragmentFirstBinding
 
 /**
@@ -15,6 +15,9 @@ import ru.veider.dictionary.databinding.FragmentFirstBinding
 class FirstFragment : Fragment() {
 
     private var _binding: FragmentFirstBinding? = null
+
+    lateinit var bottomSheet: LinearLayout
+    val bottomSheetBehavior get()= from(bottomSheet)
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -26,16 +29,25 @@ class FirstFragment : Fragment() {
     ): View? {
 
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
-        return binding.root
 
+        bottomSheet = binding.bottomSheet
+        binding.fab.setOnClickListener { view ->
+            when (bottomSheetBehavior.state){
+                STATE_EXPANDED -> bottomSheetBehavior.state = STATE_COLLAPSED
+                else -> bottomSheetBehavior.state = STATE_EXPANDED
+            }
+
+        }
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.buttonFirst.setOnClickListener {
-            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
-        }
+//        binding.buttonFirst.setOnClickListener {
+//            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+//        }
     }
 
     override fun onDestroyView() {
