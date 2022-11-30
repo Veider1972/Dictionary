@@ -1,9 +1,14 @@
 package ru.veider.dictionary.presenter
 
-import androidx.fragment.app.Fragment
+import android.view.View
+import androidx.lifecycle.MutableLiveData
+import ru.veider.dictionary.model.data.AppState
 
 interface DictionaryPresenter {
-    fun attachView(fragment:Fragment)
+    var view: View?
+    val dictionaryData: MutableLiveData<AppState>
+    val searchedWord: String
+    fun attachView(view: View)
     fun detachView()
-    fun getWords(word:String):List<String>
+    fun findWords(word: String)
 }
