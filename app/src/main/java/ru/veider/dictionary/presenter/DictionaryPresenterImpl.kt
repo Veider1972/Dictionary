@@ -1,37 +1,41 @@
 package ru.veider.dictionary.presenter
 
 import android.view.View
-import androidx.lifecycle.MutableLiveData
+import io.reactivex.subjects.ReplaySubject
 import kotlinx.coroutines.*
 import ru.veider.dictionary.model.data.AppState
 import ru.veider.dictionary.model.repository.RepositoryImpl
 
 class DictionaryPresenterImpl : DictionaryPresenter {
 
-    override var dictionaryData: MutableLiveData<AppState> = MutableLiveData()
-    private var storedSearchedWord = ""
-    override val searchedWord: String
-        get() = storedSearchedWord
+    override val dictionaryData: ReplaySubject<AppState> = ReplaySubject.createWithSize(1)
+    override val searchedWord: ReplaySubject<String> = ReplaySubject.createWithSize(1)
 
     override var view: View? = null
     private val repo = RepositoryImpl()
 
     override fun findWords(word: String) {
-        storedSearchedWord = word
+        searchedWord.onNext(word)
         CoroutineScope(Dispatchers.IO).launch {
-            dictionaryData.postValue(AppState.Loading())
+            MainScope().launch {
+                dictionaryData.onNext(AppState.Loading())
+            }
             try {
+                Thread.sleep(2000) // имитация длительной загрузки
                 val words = repo.findWords(word)
-                dictionaryData.postValue(AppState.Success(words))
+                MainScope().launch {
+                    dictionaryData.onNext(AppState.Success(words))
+                }
             } catch (e: Exception) {
-                dictionaryData.postValue(AppState.Error(e))
+                MainScope().launch {
+                    dictionaryData.onNext(AppState.Error(e))
+                }
             }
         }
-     }
+    }
 
     override fun attachView(view: View) {
         this.view = view
-        dictionaryData.postValue(dictionaryData.value)
     }
 
     override fun detachView() {

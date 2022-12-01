@@ -1,13 +1,13 @@
 package ru.veider.dictionary.presenter
 
 import android.view.View
-import androidx.lifecycle.MutableLiveData
+import io.reactivex.subjects.ReplaySubject
 import ru.veider.dictionary.model.data.AppState
 
 interface DictionaryPresenter {
     var view: View?
-    val dictionaryData: MutableLiveData<AppState>
-    val searchedWord: String
+    val dictionaryData: ReplaySubject<AppState>
+    val searchedWord: ReplaySubject<String>
     fun attachView(view: View)
     fun detachView()
     fun findWords(word: String)
