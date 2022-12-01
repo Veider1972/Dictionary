@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/FirstFragment"
-        android:name="ru.veider.dictionary.view.FirstFragment"
-        android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first">
+        android:name="ru.veider.dictionary.view.dictionary.DictionaryFragment"
+        android:label="@string/fragment_dictionary_label"
+        tools:layout="@layout/fragment_dictionary">
 
         <action
             android:id="@+id/action_FirstFragment_to_SecondFragment"
