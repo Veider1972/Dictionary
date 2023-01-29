@@ -1,4 +1,4 @@
-package ru.veider.dictionary.view.dictionary
+package ru.veider.dictionary.presentation.view.dictionary
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -12,20 +12,20 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.subjects.ReplaySubject
 import ru.veider.dictionary.R
-import ru.veider.dictionary.app
 import ru.veider.dictionary.databinding.FragmentDictionaryBinding
 import ru.veider.dictionary.model.data.AppState
-import ru.veider.dictionary.view.hideKeyboard
+import ru.veider.dictionary.presentation.view.hideKeyboard
+import ru.veider.dictionary.presentation.viewmodel.DictionaryViewModel
 
 class DictionaryFragment : Fragment() {
 
     private var _binding: FragmentDictionaryBinding? = null
+    private val binding get() = _binding!!
 
     private lateinit var bottomSheet: LinearLayout
     private val bottomSheetBehavior get() = from(bottomSheet)
@@ -34,18 +34,17 @@ class DictionaryFragment : Fragment() {
     private lateinit var progressBar: ProgressBar
     private lateinit var searchText: EditText
     private lateinit var searchButton: Button
-    private lateinit var titleText: TextView
-    private val presenter = app.presenter
-    private lateinit var appStateSubscriber: ReplaySubject<AppState>
-    private lateinit var titleSubscriber: ReplaySubject<String>
 
-    private val binding get() = _binding!!
+    private lateinit var titleText: TextView
 
     @SuppressLint("CheckResult")
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
+        val viewModel by lazy { ViewModelProvider(this.requireActivity())[DictionaryViewModel::class.java] }
 
         _binding = FragmentDictionaryBinding.inflate(inflater, container, false)
 
@@ -61,7 +60,7 @@ class DictionaryFragment : Fragment() {
             setOnClickListener {
                 if (searchText.text.isNotEmpty()) {
                     requireContext().hideKeyboard(requireView())
-                    presenter.findWords(searchText.text.toString())
+                    viewModel.findWords(searchText.text.toString())
                     searchText.text.clear()
                 }
             }
@@ -79,58 +78,37 @@ class DictionaryFragment : Fragment() {
             }
         }
 
-        appStateSubscriber = app.presenter.dictionaryData.apply {
-            subscribeBy(
-                onNext = { appState ->
-                    when (appState) {
-                        is AppState.Success -> {
-                            progressBar.visibility = View.GONE
-                            recyclerViewContainer.visibility = View.VISIBLE
-                            appState.data?.let {
-                                recyclerView.adapter = DictionaryAdapter(it)
-                            }
-                        }
-                        is AppState.Loading -> {
-                            recyclerViewContainer.visibility = View.GONE
-                            progressBar.visibility = View.VISIBLE
-                        }
-                        is AppState.Error   -> {
-                            progressBar.visibility = View.GONE
-                            recyclerViewContainer.visibility = View.GONE
-                        }
+        viewModel.dictionaryData.observe(this.requireActivity()){ appState ->
+            when (appState) {
+                is AppState.Success -> {
+                    progressBar.visibility = View.GONE
+                    recyclerViewContainer.visibility = View.VISIBLE
+                    appState.data?.let {
+                        recyclerView.adapter = DictionaryAdapter(it)
                     }
-                },
-                onError = { error ->
+                }
+                is AppState.Loading -> {
+                    recyclerViewContainer.visibility = View.GONE
+                    progressBar.visibility = View.VISIBLE
+                }
+                is AppState.Error   -> {
+                    progressBar.visibility = View.GONE
+                    recyclerViewContainer.visibility = View.GONE
                     Toast.makeText(requireContext(),
                                    String.format(resources.getString(R.string.search_error),
-                                                 error.message
+                                                 appState.error.message
                                    ),
                                    Toast.LENGTH_LONG
                     )
                         .show()
-                })
-        }
-
-        titleSubscriber = app.presenter.searchedWord.apply {
-            subscribe { title ->
-                titleText.text = title
+                }
             }
         }
 
+        viewModel.searchedWord.observe(this.requireActivity()){title ->
+            titleText.text = title
+        }
+
         return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        presenter.attachView(view)
-//        binding.buttonFirst.setOnClickListener {
-//            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
-//        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        presenter.detachView()
-        _binding = null
     }
 }

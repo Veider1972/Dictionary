@@ -1,4 +1,4 @@
-package ru.veider.dictionary.view
+package ru.veider.dictionary.presentation.view
 
 import android.app.Activity
 import android.content.Context
@@ -40,9 +40,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
             R.id.action_settings -> true
             else                 -> super.onOptionsItemSelected(item)
@@ -59,6 +56,7 @@ class MainActivity : AppCompatActivity() {
 fun Activity.hideKeyboard() {
     hideKeyboard(currentFocus ?: View(this))
 }
+
 fun Context.hideKeyboard(view: View) {
     val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
     inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)

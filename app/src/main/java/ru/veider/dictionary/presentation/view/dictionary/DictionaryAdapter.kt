@@ -1,4 +1,4 @@
-package ru.veider.dictionary.view.dictionary
+package ru.veider.dictionary.presentation.view.dictionary
 
 import android.view.LayoutInflater
 import android.view.View

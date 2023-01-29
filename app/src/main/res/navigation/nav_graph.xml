@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/FirstFragment"
-        android:name="ru.veider.dictionary.view.dictionary.DictionaryFragment"
+        android:name="ru.veider.dictionary.presentation.view.dictionary.DictionaryFragment"
         android:label="@string/fragment_dictionary_label"
         tools:layout="@layout/fragment_dictionary">
 
@@ -17,7 +17,7 @@
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
-        android:name="ru.veider.dictionary.view.SecondFragment"
+        android:name="ru.veider.dictionary.presentation.view.SecondFragment"
         android:label="@string/second_fragment_label"
         tools:layout="@layout/fragment_second">
 
