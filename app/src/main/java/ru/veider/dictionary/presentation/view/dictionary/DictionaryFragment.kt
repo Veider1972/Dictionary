@@ -12,10 +12,10 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
+import org.koin.android.ext.android.getKoin
 import ru.veider.dictionary.R
 import ru.veider.dictionary.databinding.FragmentDictionaryBinding
 import ru.veider.dictionary.model.data.AppState
@@ -44,7 +44,7 @@ class DictionaryFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        val viewModel by lazy { ViewModelProvider(this.requireActivity())[DictionaryViewModel::class.java] }
+        val viewModel = getKoin().get<DictionaryViewModel>()
 
         _binding = FragmentDictionaryBinding.inflate(inflater, container, false)
 
