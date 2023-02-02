@@ -1,4 +1,4 @@
-package ru.veider.dictionary.presentation.view.presenter
+package ru.veider.dictionary.presentation.viewmodel
 
 import androidx.lifecycle.LiveData
 import ru.veider.dictionary.model.data.AppState

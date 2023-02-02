@@ -4,33 +4,40 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.*
 import ru.veider.dictionary.model.data.AppState
-import ru.veider.dictionary.model.repository.RepositoryImpl
-import ru.veider.dictionary.presentation.view.presenter.DictionaryViewModelContract
+import ru.veider.dictionary.model.repository.Repository
 
-class DictionaryViewModel : ViewModel(), DictionaryViewModelContract {
+class DictionaryViewModel(
+    private val repo: Repository
+) : ViewModel(), DictionaryViewModelContract {
 
     override val dictionaryData: MutableLiveData<AppState> = MutableLiveData()
     override val searchedWord: MutableLiveData<String> = MutableLiveData()
 
-    private val repo = RepositoryImpl()
+    private val scopeIO = CoroutineScope(Dispatchers.IO)
+    private val scopeMain = CoroutineScope(Dispatchers.Main)
+    private var job: Job? = null
 
     override fun findWords(word: String) {
         searchedWord.postValue(word)
-        CoroutineScope(Dispatchers.IO).launch {
-            MainScope().launch {
-                dictionaryData.postValue(AppState.Loading())
-            }
+        job?.cancel()
+        job = scopeIO.launch {
+            dictionaryData.postValue(AppState.Loading())
             try {
-                Thread.sleep(2000) // имитация длительной загрузки
+                delay(2000) // имитация длительной загрузки
                 val words = repo.findWords(word)
-                MainScope().launch {
+                run {
                     dictionaryData.postValue(AppState.Success(words))
                 }
             } catch (e: Exception) {
-                MainScope().launch {
+                scopeMain.launch {
                     dictionaryData.postValue(AppState.Error(e))
                 }
             }
         }
+    }
+
+    override fun onCleared() {
+        job?.cancel()
+        super.onCleared()
     }
 }
