@@ -6,20 +6,19 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
+import kotlinx.coroutines.flow.*
 import org.koin.android.ext.android.getKoin
 import ru.veider.dictionary.R
 import ru.veider.dictionary.databinding.FragmentDictionaryBinding
 import ru.veider.dictionary.model.data.AppState
-import ru.veider.dictionary.presentation.view.hideKeyboard
 import ru.veider.dictionary.presentation.viewmodel.DictionaryViewModel
 
 class DictionaryFragment : Fragment() {
@@ -31,11 +30,11 @@ class DictionaryFragment : Fragment() {
     private val bottomSheetBehavior get() = from(bottomSheet)
     private lateinit var recyclerViewContainer: LinearLayout
     private lateinit var recyclerView: RecyclerView
-    private lateinit var progressBar: ProgressBar
     private lateinit var searchText: EditText
-    private lateinit var searchButton: Button
 
     private lateinit var titleText: TextView
+
+    private val viewModel = getKoin().get<DictionaryViewModel>()
 
     @SuppressLint("CheckResult")
     override fun onCreateView(
@@ -44,8 +43,6 @@ class DictionaryFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        val viewModel = getKoin().get<DictionaryViewModel>()
-
         _binding = FragmentDictionaryBinding.inflate(inflater, container, false)
 
         bottomSheet = binding.bottomSheet
@@ -53,18 +50,13 @@ class DictionaryFragment : Fragment() {
         recyclerView = binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
         }
-        progressBar = binding.progressBar
-        searchText = binding.searchText
-        titleText = binding.titleText
-        searchButton = binding.searchButton.apply {
-            setOnClickListener {
-                if (searchText.text.isNotEmpty()) {
-                    requireContext().hideKeyboard(requireView())
-                    viewModel.findWords(searchText.text.toString())
-                    searchText.text.clear()
-                }
+        searchText = binding.searchText.apply {
+            doOnTextChanged { text, _, _, _ ->
+                viewModel.find(text.toString().trim())
             }
         }
+
+        titleText = binding.titleText
 
         binding.fab.setOnClickListener {
             when (bottomSheetBehavior.state) {
@@ -81,19 +73,18 @@ class DictionaryFragment : Fragment() {
         viewModel.dictionaryData.observe(this.requireActivity()){ appState ->
             when (appState) {
                 is AppState.Success -> {
-                    progressBar.visibility = View.GONE
-                    recyclerViewContainer.visibility = View.VISIBLE
                     appState.data?.let {
-                        recyclerView.adapter = DictionaryAdapter(it)
+                        if (recyclerView.adapter == null){
+                            recyclerView.adapter = DictionaryAdapter(it).apply {
+                                setHasStableIds(true)
+                            }
+                        } else {
+                            (recyclerView.adapter as DictionaryAdapter).updateList(it)
+                        }
+
                     }
                 }
-                is AppState.Loading -> {
-                    recyclerViewContainer.visibility = View.GONE
-                    progressBar.visibility = View.VISIBLE
-                }
                 is AppState.Error   -> {
-                    progressBar.visibility = View.GONE
-                    recyclerViewContainer.visibility = View.GONE
                     Toast.makeText(requireContext(),
                                    String.format(resources.getString(R.string.search_error),
                                                  appState.error.message

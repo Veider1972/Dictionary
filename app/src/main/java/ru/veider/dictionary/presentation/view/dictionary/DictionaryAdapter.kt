@@ -8,7 +8,7 @@ import ru.veider.dictionary.R
 import ru.veider.dictionary.databinding.DictionaryListItemBinding
 import ru.veider.dictionary.model.data.Dictionary
 
-class DictionaryAdapter(private val list: List<Dictionary>) : RecyclerView.Adapter<DictionaryAdapter.ViewHolder>() {
+class DictionaryAdapter(private var list: List<Dictionary>) : RecyclerView.Adapter<DictionaryAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.dictionary_list_item, parent, false) as View
@@ -39,6 +39,11 @@ class DictionaryAdapter(private val list: List<Dictionary>) : RecyclerView.Adapt
                 binder.meaning.text = string
             }
         }
+    }
+
+    fun updateList(list: List<Dictionary>){
+        this.list = list
+        notifyDataSetChanged()
     }
 }
 
