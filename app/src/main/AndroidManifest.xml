@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".App"
@@ -13,18 +13,26 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Dictionary"
         tools:targetApi="31">
         <activity
-            android:name=".presentation.view.MainActivity"
-            android:exported="true"
-            android:windowSoftInputMode="stateUnchanged"
-            android:theme="@style/Theme.Dictionary.NoActionBar">
+            android:name=".presentation.splashscreen.SplashActivity"
+            android:theme="@android:style/Theme.Material.Dialog.NoActionBar"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".presentation.view.MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Dictionary.NoActionBar"
+            android:windowSoftInputMode="stateUnchanged">
 
             <meta-data
                 android:name="android.app.lib_name"

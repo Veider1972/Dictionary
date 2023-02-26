@@ -12,4 +12,5 @@
     <string name="find">Найти</string>
     <string name="find_hint">Что искать?</string>
     <string name="search_error">Внимание! При поиске слов произошла ошибка: $1</string>
+    <string name="splash">Splash</string>
 </resources>
