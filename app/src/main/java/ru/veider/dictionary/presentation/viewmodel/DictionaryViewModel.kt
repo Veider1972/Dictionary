@@ -4,12 +4,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import org.koin.core.qualifier.named
+import org.koin.java.KoinJavaComponent
+import ru.veider.dictionary.di.VIEW_MODEL_SCOPE
 import ru.veider.dictionary.model.data.AppState
 import ru.veider.dictionary.model.repository.Repository
 
-@OptIn(FlowPreview::class) class DictionaryViewModel(
-    private val repo: Repository
-) : ViewModel(), DictionaryViewModelContract {
+@OptIn(FlowPreview::class)
+class DictionaryViewModel : ViewModel(), DictionaryViewModelContract {
+
+    private val scope = KoinJavaComponent.getKoin().createScope(this.toString(), named(VIEW_MODEL_SCOPE))
+    private val repo = scope.get<Repository>()
 
     override val dictionaryData: MutableLiveData<AppState> = MutableLiveData()
     override val searchedWord: MutableLiveData<String> = MutableLiveData()
