@@ -4,9 +4,11 @@ import android.view.View
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.*
 import ru.veider.dictionary.model.data.AppState
-import ru.veider.dictionary.model.repository.RepositoryImpl
+import ru.veider.dictionary.model.repository.Repository
 
-class DictionaryPresenterImpl : DictionaryPresenter {
+class DictionaryPresenterImpl(
+    private val repo: Repository
+) : DictionaryPresenter {
 
     override var dictionaryData: MutableLiveData<AppState> = MutableLiveData()
     private var storedSearchedWord = ""
@@ -14,7 +16,6 @@ class DictionaryPresenterImpl : DictionaryPresenter {
         get() = storedSearchedWord
 
     override var view: View? = null
-    private val repo = RepositoryImpl()
 
     override fun findWords(word: String) {
         storedSearchedWord = word
